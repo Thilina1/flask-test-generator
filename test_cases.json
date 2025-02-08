@@ -1,0 +1,14 @@
+{
+    "test_cases": [
+        {
+            "test_name": "Goto Test",
+            "url": "https://example.org/",
+            "steps": [
+                "Visit example.org",
+                "Check if the page title is 'Example Domain'"
+            ],
+            "inputs": [],
+            "expected_result": "Page title should be 'Example Domain'"
+        }
+    ]
+}
