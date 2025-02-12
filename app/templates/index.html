@@ -7,6 +7,55 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f3e5f5;
+            color: #4a148c;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #6a1b9a;
+        }
+        .btn-primary {
+            background-color: #8e24aa;
+            border-color: #8e24aa;
+        }
+        .btn-primary:hover {
+            background-color: #7b1fa2;
+            border-color: #7b1fa2;
+        }
+        .btn-success {
+            background-color: #ab47bc;
+            border-color: #ab47bc;
+        }
+        .btn-success:hover {
+            background-color: #9c27b0;
+            border-color: #9c27b0;
+        }
+        .btn-warning {
+            background-color: #ba68c8;
+            border-color: #ba68c8;
+        }
+        .btn-warning:hover {
+            background-color: #af52bf;
+            border-color: #af52bf;
+        }
+        table {
+            background-color: #f3e5f5;
+        }
+        th {
+            background-color: #ce93d8;
+            color: #4a148c;
+        }
+        td {
+            color: #4a148c;
+        }
+    </style>
 </head>
 <body>
     <div class="container mt-5">
@@ -16,11 +65,25 @@
                 <label for="url" class="form-label">Enter URL:</label>
                 <input type="text" id="url" name="url" class="form-control" required>
             </div>
-            <button type="submit" class="btn btn-primary">Generate User stories> 
+            <button type="submit" class="btn btn-primary">Generate User stories</button> 
         </form>
         <div id="results" class="mb-4"></div>
         <button id="downloadBtn" class="btn btn-success" style="display:none;">Download Test Cases</button>
         <button id="runTestsBtn" class="btn btn-warning" style="display:none;">Run Tests</button>
+        <button id="confirmBtn" class="btn btn-success" style="display:none;">Confirm User Stories</button>
+        <button id="generateTestsBtn" class="btn btn-warning" style="display:none;">Generate Test Cases</button>
+        <div id="testCasesTable" class="mt-4" style="display:none;">
+            <h2>Generated Test Cases</h2>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Test Case</th>
+                    </tr>
+                </thead>
+                <tbody id="testCasesBody"></tbody>
+            </table>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -47,8 +110,53 @@
                 formattedText += `Title: ${story.title}\nDescription: ${story.description}\n\n`;
             });
             quill.setText(formattedText);
-            document.getElementById('downloadBtn').style.display = 'block';
-            document.getElementById('runTestsBtn').style.display = 'block';
+            document.getElementById('confirmBtn').style.display = 'block';
+        });
+
+        document.getElementById('confirmBtn').addEventListener('click', async () => {
+            const userStoriesText = quill.getText().trim().split('\n\n').map(storyText => {
+                const [titleLine, descriptionLine] = storyText.split('\n');
+                return {
+                    title: titleLine.replace('Title: ', ''),
+                    description: descriptionLine.replace('Description: ', '')
+                };
+            });
+            const response = await fetch('/confirm_user_stories', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ user_stories: userStoriesText })
+            });
+            const data = await response.json();
+            if (data.success) {
+                document.getElementById('generateTestsBtn').style.display = 'block';
+            }
+        });
+
+        document.getElementById('generateTestsBtn').addEventListener('click', async () => {
+            const response = await fetch('/generate_test_cases', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            const data = await response.json();
+            if (data.success) {
+                const testCasesBody = document.getElementById('testCasesBody');
+                testCasesBody.innerHTML = '';
+                data.test_cases.forEach(testCase => {
+                    const row = document.createElement('tr');
+                    const titleCell = document.createElement('td');
+                    titleCell.textContent = testCase.title;
+                    const testCaseCell = document.createElement('td');
+                    testCaseCell.textContent = testCase.test_case;
+                    row.appendChild(titleCell);
+                    row.appendChild(testCaseCell);
+                    testCasesBody.appendChild(row);
+                });
+                document.getElementById('testCasesTable').style.display = 'block';
+            }
         });
     </script>
 </body>

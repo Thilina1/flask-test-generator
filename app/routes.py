@@ -37,22 +37,29 @@ def generate_tests():
     except Exception as e:
         return jsonify({"success": False, "message": f"Unexpected error: {str(e)}"}), 500
 
-@app.route('/run_tests', methods=['POST'])
-def run_tests():
-    try:
-        result = subprocess.run(
-            ['npx', 'playwright', 'test', 'recorded_test.js'],
-            capture_output=True, text=True, check=True
-        )
-        return jsonify({"output": result.stdout, "error": result.stderr})
+@app.route('/confirm_user_stories', methods=['POST'])
+def confirm_user_stories():
+    user_stories = request.json.get('user_stories')
+    
+    if not user_stories:
+        return jsonify({"success": False, "message": "User stories are required"}), 400
 
-    except subprocess.CalledProcessError as e:
-        return jsonify({"success": False, "message": f"Test execution error: {e.stderr}"}), 500
+    try:
+        with open('test_cases.json', 'w') as f:
+            json.dump({"user_stories": user_stories}, f, indent=4)
+        return jsonify({"success": True, "message": "User stories saved"})
     except Exception as e:
         return jsonify({"success": False, "message": f"Unexpected error: {str(e)}"}), 500
 
-@app.route('/download_tests', methods=['GET'])
-def download_tests():
-    if not os.path.exists('test_cases.json'):
-        return jsonify({"success": False, "message": "Test cases file not found"}), 404
-    return send_file('test_cases.json', as_attachment=True)
+@app.route('/generate_test_cases', methods=['POST'])
+def generate_test_cases():
+    try:
+        with open('test_cases.json', 'r') as f:
+            user_stories = json.load(f).get('user_stories', [])
+
+        # Placeholder for converting user stories to test cases
+        test_cases = [{"title": story["title"], "test_case": f"Test case for {story['title']}"} for story in user_stories]
+
+        return jsonify({"success": True, "test_cases": test_cases})
+    except Exception as e:
+        return jsonify({"success": False, "message": f"Unexpected error: {str(e)}"}), 500
