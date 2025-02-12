@@ -1,7 +1,7 @@
 Flask Test Generator Documentation
 
 📌 Overview
-The Flask Test Generator is a web application that automates test case generation using Playwright for test recording and Google Gemini API for structured test case generation. It allows users to input a URL, record browser interactions, and generate detailed test cases automatically.
+The Flask Test Generator is a web application that automates test case generation using Playwright for test recording and Google Gemini API for structured test case generation. It allows users to input a URL, record browser interactions, create user story and using that data generate detailed test cases automatically.
 
 ![Capture](https://github.com/user-attachments/assets/dbf66fe7-4505-40f5-ad2e-2d59dc14d2d4)
 
