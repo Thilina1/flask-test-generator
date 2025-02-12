@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, jsonify, send_file
 import subprocess
 import json
 import os
-from .utils import extract_test_steps, generate_test_cases
+from .utils import extract_test_steps, generate_user_stories
 from app import app
 
 @app.route('/')
@@ -25,7 +25,7 @@ def generate_tests():
 
         test_steps = extract_test_steps('recorded_test.js')
 
-        test_cases = generate_test_cases(test_steps)
+        test_cases = generate_user_stories(test_steps)
 
         with open('test_cases.json', 'w') as f:
             json.dump(test_cases, f, indent=4)

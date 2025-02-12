@@ -5,19 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Case Generator</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
 </head>
 <body>
-    <h1>Automated Test Case Generator</h1>
-    <form id="testForm">
-        <label for="url">Enter URL:</label>
-        <input type="text" id="url" name="url" required>
-        <button type="submit">Generate Test Cases</button>
-    </form>
-    <div id="results"></div>
-    <button id="downloadBtn" style="display:none;">Download Test Cases</button>
-    <button id="runTestsBtn" style="display:none;">Run Tests</button>
+    <div class="container mt-5">
+        <h1 class="text-center">Automated Test Case Generator</h1>
+        <form id="testForm" class="mb-4">
+            <div class="mb-3">
+                <label for="url" class="form-label">Enter URL:</label>
+                <input type="text" id="url" name="url" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Generate User stories> 
+        </form>
+        <div id="results" class="mb-4"></div>
+        <button id="downloadBtn" class="btn btn-success" style="display:none;">Download Test Cases</button>
+        <button id="runTestsBtn" class="btn btn-warning" style="display:none;">Run Tests</button>
+    </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
     <script>
+        const quill = new Quill('#results', {
+            theme: 'snow'
+        });
+
         document.getElementById('testForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const url = document.getElementById('url').value;
@@ -29,10 +41,15 @@
                 body: `url=${encodeURIComponent(url)}`
             });
             const data = await response.json();
-            document.getElementById('results').innerText = JSON.stringify(data, null, 2);
+            const userStories = data.data.user_stories;
+            let formattedText = '';
+            userStories.forEach(story => {
+                formattedText += `Title: ${story.title}\nDescription: ${story.description}\n\n`;
+            });
+            quill.setText(formattedText);
+            document.getElementById('downloadBtn').style.display = 'block';
+            document.getElementById('runTestsBtn').style.display = 'block';
         });
-
- 
     </script>
 </body>
 </html>

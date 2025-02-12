@@ -1,14 +1,8 @@
 {
-    "test_cases": [
+    "user_stories": [
         {
-            "test_name": "Goto Test",
-            "url": "https://example.org/",
-            "steps": [
-                "Visit example.org",
-                "Check if the page title is 'Example Domain'"
-            ],
-            "inputs": [],
-            "expected_result": "Page title should be 'Example Domain'"
+            "title": "Visit a Website",
+            "description": "As a user, I want to navigate to a website so I can access the information or services it offers."
         }
     ]
 }
